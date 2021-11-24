@@ -35,14 +35,30 @@ struct Arrow: Shape {
 }
 
 struct ContentView: View {
+    @State private var thickness = 5.0
+    
+    let range = 0.0...20.0
+    let step = 5.0
+    
     var body: some View {
-        Arrow()
-            .fill(.yellow)
-            .overlay(
-                Arrow()
-                    .stroke(.black, style: StrokeStyle(lineWidth: 5, lineJoin: .round))
-            )
-            .frame(width: 300, height: 300)
+        VStack {
+            Arrow()
+                .fill(.yellow)
+                .overlay(
+                    Arrow()
+                        .stroke(.black, style: StrokeStyle(lineWidth: thickness, lineJoin: .round))
+                )
+                .frame(width: 300, height: 300)
+                .onTapGesture {
+                    withAnimation {
+                        thickness = Double.random(in: range)
+                    }
+            }
+            
+            Stepper("Line thickness: \(thickness.formatted())", value: $thickness.animation(), in: range, step: step)
+                .padding(.vertical)
+        }
+        .padding()
     }
 }
 
