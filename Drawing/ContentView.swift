@@ -7,55 +7,42 @@
 
 import SwiftUI
 
-struct Checkerboard: Shape {
-    var rows: Int
-    var columns: Int
-    
-    var animatableData: AnimatablePair<Double, Double> {
-        get {
-            AnimatablePair(Double(rows), Double(columns))
-        }
-        
-        set {
-            rows = Int(newValue.first)
-            columns = Int(newValue.second)
-        }
-    }
-    
+struct Arrow: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        let rowSize = rect.height / Double(rows)
-        let columnSize = rect.width / Double(columns)
+        path.move(to: CGPoint(x: 0, y: rect.maxY))
+        path.addCurve(
+            to: CGPoint(x: rect.midX, y: rect.height * 0.2),
+            control1: CGPoint(x: rect.width * 0.1, y: rect.midY),
+            control2: CGPoint(x: rect.width * 0.1, y: rect.height * 0.3)
+        )
         
-        for row in 0..<rows {
-            for column in 0..<columns {
-                if (row + column).isMultiple(of: 2) {
-                    let startX = columnSize * Double(column)
-                    let startY = rowSize * Double(row)
-                    
-                    let rect = CGRect(x: startX, y: startY, width: columnSize, height: rowSize)
-                    path.addRect(rect)
-                }
-            }
-        }
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.height * 0.1))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.height * 0.3))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.height * 0.4))
+        
+        path.addCurve(
+            to: CGPoint(x: rect.width * 0.2, y: rect.height * 0.9),
+            control1: CGPoint(x: rect.width / 4, y: rect.height * 0.4),
+            control2: CGPoint(x: rect.width / 4, y: rect.midY)
+        )
+        path.closeSubpath()
         
         return path
     }
 }
 
 struct ContentView: View {
-    @State private var rows = 4
-    @State private var columns = 4
-    
     var body: some View {
-        Checkerboard(rows: rows, columns: columns)
-            .onTapGesture {
-                withAnimation(.linear(duration: 3)) {
-                    rows = 8
-                    columns = 16
-                }
-            }
+        Arrow()
+            .fill(.yellow)
+            .overlay(
+                Arrow()
+                    .stroke(.black, style: StrokeStyle(lineWidth: 5, lineJoin: .round))
+            )
+            .frame(width: 300, height: 300)
     }
 }
 
